@@ -35,7 +35,7 @@ SPDX-License-Identifier: MIT
 #include <stdbool.h>
 #include <stdint.h>
 
-/* === Macros definitions ============================================================ */
+/* === Public Macros definitions ============================================================ */
 
 #define FREQ_SAMPLING   96000
 #define FREQ_MAX        24000
@@ -48,7 +48,7 @@ SPDX-License-Identifier: MIT
 #define CHANNEL_1       1
 #define NULL            ((void *)0)
 
-/* === Private data type declarations ================================================ */
+/* === Public data type declarations ================================================ */
 
 typedef enum { SINUSOIDAL, SAWTOOTH } wave_t;
 
@@ -59,9 +59,9 @@ typedef struct {
     uint16_t freq;     // 20 to 24000 [Hz]
 } channel;
 
-/* === Private variable declarations ================================================= */
+/* === Public variable declarations ================================================= */
 
-/* === Private function declarations ================================================= */
+/* === Public function declarations ================================================= */
 
 /**
  * @brief  Devuelve un puntero a la estrucutura channel para cada canal
@@ -97,13 +97,7 @@ void setAmpChannel(uint8_t n_channel, uint8_t amplitude);
  */
 void setWaveChannel(uint8_t n_channel, wave_t wave_type);
 
-/* === Public variable definitions =================================================== */
-
-/* === Private variable definitions ================================================== */
-
-/* === Private function implementation =============================================== */
-
-/* === Public function implementation ================================================ */
+/* === End of documentation ========================================================== */
 
 // Freq. sampling 96000 Hz
 // Freq. Min. 20 Hz - Freq. Max. 24000 Hz
