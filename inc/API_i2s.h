@@ -30,43 +30,38 @@ SPDX-License-Identifier: MIT
 #ifndef API_INC_API_I2S_H_
 #define API_INC_API_I2S_H_
 
-/* === Headers files inclusions
- * ====================================================== */
+/* === Headers files inclusions ====================================================== */
 
 #include <stdbool.h>
 #include <stdint.h>
 
-/* === Macros definitions
- * ============================================================ */
+/* === Macros definitions ============================================================ */
 
-#define FREQ_SAMPLING 96000
-#define FREQ_MAX 24000
-#define FREQ_MIN 20
+#define FREQ_SAMPLING   96000
+#define FREQ_MAX        24000
+#define FREQ_MIN        20
 #define BUFFER_SIZE_MAX 4800
 #define BUFFER_SIZE_MIN 4
-#define SCALE_SIN_WAVE 16383
-#define SCALE_SAW_WAVE 32767
-#define CHANNEL_0 0
-#define CHANNEL_1 1
-#define NULL ((void *)0)
+#define SCALE_SIN_WAVE  16383
+#define SCALE_SAW_WAVE  32767
+#define CHANNEL_0       0
+#define CHANNEL_1       1
+#define NULL            ((void *)0)
 
-/* === Private data type declarations
- * ================================================ */
+/* === Private data type declarations ================================================ */
 
 typedef enum { SINUSOIDAL, SAWTOOTH } wave_t;
 
 typedef struct {
-  uint8_t n_ch;      // 0 o 1
-  wave_t wave_type;  // SINUSOIDAL o SAWTOOTH
-  uint8_t amplitude; // 0 to 100 [%]
-  uint16_t freq;     // 20 to 24000 [Hz]
+    uint8_t n_ch;      // 0 o 1
+    wave_t wave_type;  // SINUSOIDAL o SAWTOOTH
+    uint8_t amplitude; // 0 to 100 [%]
+    uint16_t freq;     // 20 to 24000 [Hz]
 } channel;
 
-/* === Private variable declarations
- * ================================================= */
+/* === Private variable declarations ================================================= */
 
-/* === Private function declarations
- * ================================================= */
+/* === Private function declarations ================================================= */
 
 /**
  * @brief  Devuelve un puntero a la estrucutura channel para cada canal
@@ -74,7 +69,7 @@ typedef struct {
  * @param  uint8_t ch: numero de canal (0 o 1)
  * @return puntero al handle del canal (channel*)
  */
-channel *readChannelProperty(uint8_t ch);
+channel * readChannelProperty(uint8_t ch);
 
 /**
  * @brief  Setea un nuevo valor de frecuencia en ambos canales (0 y 1)
@@ -102,17 +97,13 @@ void setAmpChannel(uint8_t n_channel, uint8_t amplitude);
  */
 void setWaveChannel(uint8_t n_channel, wave_t wave_type);
 
-/* === Public variable definitions
- * =================================================== */
+/* === Public variable definitions =================================================== */
 
-/* === Private variable definitions
- * ================================================== */
+/* === Private variable definitions ================================================== */
 
-/* === Private function implementation
- * =============================================== */
+/* === Private function implementation =============================================== */
 
-/* === Public function implementation
- * ================================================ */
+/* === Public function implementation ================================================ */
 
 // Freq. sampling 96000 Hz
 // Freq. Min. 20 Hz - Freq. Max. 24000 Hz
