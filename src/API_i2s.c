@@ -43,7 +43,6 @@ SPDX-License-Identifier: MIT
 static int32_t dataBufferI2S[BUFFER_SIZE_MAX];
 static int16_t dataChannel[QUANT_CHANNELS][BUFFER_SIZE_MAX];
 static channel channel_0, channel_1;
-static uint32_t size_buffer;
 
 /* === Private function declarations =========================================================== */
 
@@ -68,13 +67,15 @@ Recibe como parametro el valor de frecuencia en Hz
 **********************************************************************************************************
 */
 static void setSizeBuffer(uint16_t frequency) {
-    size_buffer = FREQ_SAMPLING / frequency;
+    uint16_t size_buffer = FREQ_SAMPLING / frequency;
     if (size_buffer > BUFFER_SIZE_MAX)
         size_buffer = BUFFER_SIZE_MAX;
     if (size_buffer < BUFFER_SIZE_MIN)
         size_buffer = BUFFER_SIZE_MIN;
     channel_0.freq = frequency;
     channel_1.freq = frequency;
+    channel_0.size_buffer = size_buffer;
+    channel_1.size_buffer = size_buffer;
 }
 
 /*
@@ -86,11 +87,12 @@ channel que contiene los atributos de cada canal
 **********************************************************************************************************
 */
 static void setChannel(channel * h_ch) {
+    uint16_t size_buffer = h_ch->size_buffer;
     if (h_ch != NULL) {
         for (uint16_t i = 0; i < size_buffer; i++) {
             if (h_ch->wave_type == SINUSOIDAL)
-                dataChannel[h_ch->n_ch][i] =
-                    (h_ch->amplitude / 100.0) * SCALE_SIN_WAVE * sinf(i * 2 * M_PI / size_buffer);
+                dataChannel[h_ch->n_ch][i] = (h_ch->amplitude / 100.0) * SCALE_SIN_WAVE * 1 *
+                                             (i * 2 * M_PI / size_buffer); // 1 = sinf
             if (h_ch->wave_type == SAWTOOTH)
                 dataChannel[h_ch->n_ch][i] =
                     (h_ch->amplitude / 100.0) * i * (SCALE_SAW_WAVE / size_buffer);
@@ -108,6 +110,7 @@ canales para ser enviados por I2S
 */
 static void setBufferI2S() {
     int32_t aux;
+    uint16_t size_buffer = channel_0.size_buffer;
     for (uint16_t i = 0; i < size_buffer; i++) {
         dataBufferI2S[i] = dataChannel[CHANNEL_0][i];
         aux = dataBufferI2S[i] << 16;
@@ -115,6 +118,20 @@ static void setBufferI2S() {
         dataBufferI2S[i] = dataBufferI2S[i] + (int32_t)dataChannel[CHANNEL_1][i];
     }
 }
+
+/*
+**********************************************************************************************************
+* @brief  This function is executed in case of error occurrence.
+**********************************************************************************************************
+*/
+void Error_Handler(void) {
+
+    while (1) {
+    }
+    /* USER CODE END Error_Handler_Debug */
+}
+
+/* === Public function implementation ========================================================== */
 
 /*
 **********************************************************************************************************
@@ -138,20 +155,6 @@ static void channelsInit(void) {
     setChannel(&channel_1);
     setBufferI2S();
 }
-
-/*
-**********************************************************************************************************
-* @brief  This function is executed in case of error occurrence.
-**********************************************************************************************************
-*/
-void Error_Handler(void) {
-
-    while (1) {
-    }
-    /* USER CODE END Error_Handler_Debug */
-}
-
-/* === Public function implementation ========================================================== */
 
 /*
 **********************************************************************************************************

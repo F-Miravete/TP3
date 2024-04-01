@@ -53,15 +53,24 @@ SPDX-License-Identifier: MIT
 typedef enum { SINUSOIDAL, SAWTOOTH } wave_t;
 
 typedef struct {
-    uint8_t n_ch;      // 0 o 1
-    wave_t wave_type;  // SINUSOIDAL o SAWTOOTH
-    uint8_t amplitude; // 0 to 100 [%]
-    uint16_t freq;     // 20 to 24000 [Hz]
+    uint8_t n_ch;         // 0 o 1
+    wave_t wave_type;     // SINUSOIDAL o SAWTOOTH
+    uint8_t amplitude;    // 0 to 100 [%]
+    uint16_t freq;        // 20 to 24000 [Hz]
+    uint16_t size_buffer; // 4 to 4800
 } channel;
 
 /* === Public variable declarations ================================================= */
 
 /* === Public function declarations ================================================= */
+
+/**
+ * @brief  Inicializa canales
+ *
+ * @param  -
+ * @return -
+ */
+static void channelsInit(void);
 
 /**
  * @brief  Devuelve un puntero a la estrucutura channel para cada canal
