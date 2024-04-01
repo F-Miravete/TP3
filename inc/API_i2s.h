@@ -35,7 +35,7 @@ SPDX-License-Identifier: MIT
 #include <stdbool.h>
 #include <stdint.h>
 
-/* === Public Macros definitions ============================================================ */
+/* === Public Macros definitions ===================================================== */
 
 #define FREQ_SAMPLING   96000
 #define FREQ_MAX        24000

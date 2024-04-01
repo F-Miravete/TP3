@@ -26,35 +26,26 @@ SPDX-License-Identifier: MIT
  *
  */
 
-/* === Headers files inclusions
- * =============================================================== */
+/* === Headers files inclusions =============================================================== */
 
 #include "API_i2s.h"
 #include "unity.h"
 
-/* === Macros definitions
- * ====================================================================== */
+/* === Macros definitions ====================================================================== */
 
-/* === Private data type declarations
- * ========================================================== */
+/* === Private data type declarations ========================================================== */
 
-/* === Private variable declarations
- * =========================================================== */
+/* === Private variable declarations =========================================================== */
 
-/* === Private function declarations
- * =========================================================== */
+/* === Private function declarations =========================================================== */
 
-/* === Public variable definitions
- * ============================================================= */
+/* === Public variable definitions ============================================================= */
 
-/* === Private variable definitions
- * ============================================================ */
+/* === Private variable definitions ============================================================ */
 
-/* === Private function implementation
- * ========================================================= */
+/* === Private function implementation ========================================================= */
 
-/* === Public function implementation
- * ========================================================== */
+/* === Public function implementation ========================================================== */
 
 /**
  * @brief Test 1
@@ -64,4 +55,6 @@ SPDX-License-Identifier: MIT
  * @param  -
  * @return -
  */
-void test_inicializacion_driver_I2S(void) { TEST_FAIL_MESSAGE("PROBAMOS"); }
+void test_inicializacion_driver_I2S(void) {
+    TEST_FAIL_MESSAGE("PROBAMOS");
+}
