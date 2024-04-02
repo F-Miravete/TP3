@@ -53,11 +53,12 @@ SPDX-License-Identifier: MIT
 typedef enum { SINUSOIDAL, SAWTOOTH } wave_t;
 
 typedef struct {
-    uint8_t n_ch;         // 0 o 1
-    wave_t wave_type;     // SINUSOIDAL o SAWTOOTH
-    uint8_t amplitude;    // 0 to 100 [%]
-    uint16_t freq;        // 20 to 24000 [Hz]
-    uint16_t size_buffer; // 4 to 4800
+    uint8_t n_ch;                   // 0 o 1
+    wave_t wave_type;               // SINUSOIDAL o SAWTOOTH
+    uint8_t amplitude;              // 0 to 100 [%]
+    uint16_t freq;                  // 20 to 24000 [Hz]
+    uint16_t size_buffer;           // 4 to 4800
+    int16_t wdata[BUFFER_SIZE_MAX]; // vector que contiene la forma de onda
 } channel;
 
 /* === Public variable declarations ================================================= */
@@ -67,44 +68,46 @@ typedef struct {
 /**
  * @brief  Inicializa canales
  *
- * @param  -
+ * @param  - handle de canal 0 y canal 1
  * @return -
  */
-static void channelsInit(void);
-
-/**
- * @brief  Devuelve un puntero a la estrucutura channel para cada canal
- *
- * @param  uint8_t ch: numero de canal (0 o 1)
- * @return puntero al handle del canal (channel*)
- */
-channel * readChannelProperty(uint8_t ch);
+void channelsInit(channel * ch0, channel * ch1);
 
 /**
  * @brief  Setea un nuevo valor de frecuencia en ambos canales (0 y 1)
  *
- * @param  uint16_t freq: valor de frecuencia en Hz
+ * @param  channel * h_ch0 : handle de canal 0
+ *         channel * h_ch1 : handle de canal 1
+ *          uint16_t freq : valor de frecuencia en Hz
  * @return -
  */
-void setFreqChannels(uint16_t freq);
+void setFreqChannels(channel * h_ch0, channel * h_ch1, uint16_t freq);
 
 /**
  * @brief  Setea un nuevo valor de amplitud en un canal
  *
- * @param  uint8_t n_channel: numero de canal
+ * @param  channel * h_ch : handle de canal
  *         uint8_t amplitude: valor de amplitud en % (0 a 100 %)
  * @return -
  */
-void setAmpChannel(uint8_t n_channel, uint8_t amplitude);
+void setAmpChannel(channel * h_ch, uint8_t amplitude);
 
 /**
  * @brief  Setea nueva forma de onda en un canal
  *
- * @param  uint8_t n_channel: numero de canal
+ * @param  channel * h_ch : handle de canal
  *         wave_t wave_type : forma de onda
  * @return -
  */
-void setWaveChannel(uint8_t n_channel, wave_t wave_type);
+void setWaveChannel(channel * h_ch, wave_t wave_type);
+
+/**
+ * @brief  Arma buffer para enviar datos I2S de los 2 canales
+ *
+ * @param  - handle de canal 0 y canal 1 y
+ * @return -
+ */
+void setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBufferI2S);
 
 /* === End of documentation ========================================================== */
 
