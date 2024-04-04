@@ -40,6 +40,9 @@ SPDX-License-Identifier: MIT
 
 /* === Private variable declarations =========================================================== */
 
+static channel * ch_0;
+static channel * ch_1;
+
 /* === Private function declarations =========================================================== */
 
 static void setChannel(channel * h_ch);
@@ -115,6 +118,8 @@ Canal 1 -> Sawtooth, 1000Hz, Amplitud 100%
 **********************************************************************************************************
 */
 void channelsInit(channel * ch0, channel * ch1) {
+    ch_0 = ch0;
+    ch_1 = ch1;
     ch0->amplitude = AMPLITUDE_MAX;
     ch0->n_ch = CHANNEL_0;
     ch0->wave_type = SINUSOIDAL;
