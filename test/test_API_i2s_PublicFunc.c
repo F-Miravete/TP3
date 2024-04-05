@@ -38,12 +38,27 @@ SPDX-License-Identifier: MIT
 
 /* === Macros definitions ====================================================================== */
 
+#define TEST_FREQ_SAMPLING   96000
+#define TEST_FREQ_MAX        24000
+#define TEST_FREQ_MIN        20
+#define TEST_BUFFER_SIZE_MAX 4800
+#define TEST_BUFFER_SIZE_MIN 4
+#define TEST_SCALE_SIN_WAVE  16383
+#define TEST_SCALE_SAW_WAVE  32767
+#define TEST_CHANNEL_0       0
+#define TEST_CHANNEL_1       1
+#define RETURN_ERROR         -1
+#define RETURN_OK            0
+#define TEST_INITIAL_FREQ    1000
+#define TEST_AMPLITUDE_MAX   100
+#define TEST_AMPLITUDE_MIN   0
+
 /* === Private data type declarations ========================================================== */
 
 /* === Private variable declarations =========================================================== */
 
 static channel T_channel_0, T_channel_1;
-static int32_t T_bufferI2S[BUFFER_SIZE_MAX];
+static int32_t T_bufferI2S[TEST_BUFFER_SIZE_MAX];
 
 /* === Private function declarations =========================================================== */
 
@@ -63,10 +78,10 @@ static int32_t T_bufferI2S[BUFFER_SIZE_MAX];
  * @return -
  */
 void test_creacion_correcta_de_canales(void) {
-    TEST_ASSERT_EQUAL_INT(-1, channelsInit((void *)0, &T_channel_1));
-    TEST_ASSERT_EQUAL_INT(-1, channelsInit(&T_channel_0, (void *)0));
-    TEST_ASSERT_EQUAL_INT(-1, channelsInit((void *)0, (void *)0));
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, channelsInit((void *)0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, channelsInit(&T_channel_0, (void *)0));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, channelsInit((void *)0, (void *)0));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
 }
 /**
  * @brief Test 1.2
@@ -82,7 +97,7 @@ void test_inicializacion_valores_de_canales(void) {
     T_channel_0.n_ch = 1;
     T_channel_0.size_buffer = 1;
     T_channel_0.wave_type = 1;
-    for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++)
+    for (uint16_t i = 0; i < TEST_BUFFER_SIZE_MAX; i++)
         T_channel_0.wdata[i] = 0;
 
     // Cargo valores distintos a los iniciales en canal 1
@@ -91,30 +106,30 @@ void test_inicializacion_valores_de_canales(void) {
     T_channel_1.n_ch = 2;
     T_channel_1.size_buffer = 2;
     T_channel_1.wave_type = 2;
-    for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++)
+    for (uint16_t i = 0; i < TEST_BUFFER_SIZE_MAX; i++)
         T_channel_1.wdata[i] = 0;
 
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
 
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT8(0, T_channel_0.n_ch);
-    TEST_ASSERT_EQUAL_UINT16(96000 / 1000, T_channel_0.size_buffer);
-    TEST_ASSERT_EQUAL(0, T_channel_0.wave_type);
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT8(TEST_CHANNEL_0, T_channel_0.n_ch);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_SAMPLING / TEST_INITIAL_FREQ, T_channel_0.size_buffer);
+    TEST_ASSERT_EQUAL(SINUSOIDAL, T_channel_0.wave_type);
     bool flag_0 = false;
-    for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++) {
+    for (uint16_t i = 0; i < TEST_BUFFER_SIZE_MAX; i++) {
         if (T_channel_0.wdata[i] != 0)
             flag_0 = true;
     }
     TEST_ASSERT_TRUE(flag_0);
 
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
-    TEST_ASSERT_EQUAL_UINT8(1, T_channel_1.n_ch);
-    TEST_ASSERT_EQUAL_UINT16(96000 / 1000, T_channel_1.size_buffer);
-    TEST_ASSERT_EQUAL(1, T_channel_1.wave_type);
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_1.amplitude);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_UINT8(TEST_CHANNEL_1, T_channel_1.n_ch);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_SAMPLING / TEST_INITIAL_FREQ, T_channel_1.size_buffer);
+    TEST_ASSERT_EQUAL(SAWTOOTH, T_channel_1.wave_type);
     bool flag_1 = false;
-    for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++) {
+    for (uint16_t i = 0; i < TEST_BUFFER_SIZE_MAX; i++) {
         if (T_channel_1.wdata[i] != 0)
             flag_1 = true;
     }
@@ -130,13 +145,13 @@ void test_inicializacion_valores_de_canales(void) {
  */
 void test_verificar_puntero_cambio_de_frecuencia_canales(void) {
     uint16_t test_frequency = 2500;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels((void *)0, &T_channel_1, test_frequency));
-    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels(&T_channel_0, (void *)0, test_frequency));
-    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels((void *)0, (void *)0, test_frequency));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setFreqChannels((void *)0, &T_channel_1, test_frequency));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setFreqChannels(&T_channel_0, (void *)0, test_frequency));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setFreqChannels((void *)0, (void *)0, test_frequency));
 
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_1.freq);
 }
 
 /**
@@ -148,11 +163,11 @@ void test_verificar_puntero_cambio_de_frecuencia_canales(void) {
  */
 void test_cambio_de_frecuencia_canales(void) {
     uint16_t test_frequency = 2500;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_1.freq);
 
-    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency));
 
     TEST_ASSERT_EQUAL_UINT16(test_frequency, T_channel_0.freq);
     TEST_ASSERT_EQUAL_UINT16(test_frequency, T_channel_1.freq);
@@ -168,19 +183,19 @@ void test_cambio_de_frecuencia_canales(void) {
 void test_cambio_de_frecuencia_con_valores_prohibidos(void) {
     uint16_t test_frequency_1 = 25000;
     uint16_t test_frequency_2 = 12;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_INITIAL_FREQ, T_channel_1.freq);
 
-    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_1));
 
-    TEST_ASSERT_EQUAL_UINT16(FREQ_MAX, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT16(FREQ_MAX, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_MAX, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_MAX, T_channel_1.freq);
 
-    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_2));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_2));
 
-    TEST_ASSERT_EQUAL_UINT16(FREQ_MIN, T_channel_0.freq);
-    TEST_ASSERT_EQUAL_UINT16(FREQ_MIN, T_channel_1.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_MIN, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(TEST_FREQ_MIN, T_channel_1.freq);
 }
 
 /**
@@ -192,11 +207,11 @@ void test_cambio_de_frecuencia_con_valores_prohibidos(void) {
  */
 void test_puntero_valido_al_llamar_cambio_de_amplitud_canal(void) {
     uint8_t test_amplitude = 33;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
 
-    TEST_ASSERT_EQUAL_INT(-1, setAmpChannel((void *)0, test_amplitude));
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setAmpChannel((void *)0, test_amplitude));
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_1.amplitude);
 }
 
 /**
@@ -208,10 +223,10 @@ void test_puntero_valido_al_llamar_cambio_de_amplitud_canal(void) {
  */
 void test_cambio_de_amplitud_canal_distinto(void) {
     uint8_t test_amplitude = 33;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
     T_channel_0.n_ch = 2;
-    TEST_ASSERT_EQUAL_INT(-1, setAmpChannel(&T_channel_0, test_amplitude));
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setAmpChannel(&T_channel_0, test_amplitude));
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_0.amplitude);
 }
 
 /**
@@ -222,8 +237,8 @@ void test_cambio_de_amplitud_canal_distinto(void) {
  * @return -
  */
 void test_cambio_de_amplitud_canal_0(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_0.amplitude);
     uint8_t test_amplitude = 33;
     setAmpChannel(&T_channel_0, test_amplitude);
     TEST_ASSERT_EQUAL_UINT8(test_amplitude, T_channel_0.amplitude);
@@ -237,8 +252,8 @@ void test_cambio_de_amplitud_canal_0(void) {
  * @return -
  */
 void test_cambio_de_amplitud_canal_1(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_1.amplitude);
     uint8_t test_amplitude = 55;
     setAmpChannel(&T_channel_1, test_amplitude);
     TEST_ASSERT_EQUAL_UINT8(test_amplitude, T_channel_1.amplitude);
@@ -252,12 +267,12 @@ void test_cambio_de_amplitud_canal_1(void) {
  * @return -
  */
 void test_cambio_de_amplitud_canal_para_valores_prohibidos(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
-    uint8_t test_amplitude = 101;
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_1.amplitude);
+    uint8_t test_amplitude = 105;
     setAmpChannel(&T_channel_1, test_amplitude);
-    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+    TEST_ASSERT_EQUAL_UINT8(TEST_AMPLITUDE_MAX, T_channel_1.amplitude);
 }
 
 /**
@@ -269,9 +284,9 @@ void test_cambio_de_amplitud_canal_para_valores_prohibidos(void) {
  */
 void test_puntero_valido_al_llamar_cambio_tipo_de_onda(void) {
     wave_t test_wave = SAWTOOTH;
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
 
-    TEST_ASSERT_EQUAL_INT(-1, setWaveChannel((void *)0, test_wave));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setWaveChannel((void *)0, test_wave));
     TEST_ASSERT_EQUAL_UINT8(SINUSOIDAL, T_channel_0.wave_type);
     TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
 }
@@ -284,7 +299,7 @@ void test_puntero_valido_al_llamar_cambio_tipo_de_onda(void) {
  * @return -
  */
 void test_cambio_de_forma_de_onda_canal_0(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(SINUSOIDAL, T_channel_0.wave_type);
     wave_t test_wave = SAWTOOTH;
     setWaveChannel(&T_channel_0, test_wave);
@@ -299,7 +314,7 @@ void test_cambio_de_forma_de_onda_canal_0(void) {
  * @return -
  */
 void test_cambio_de_forma_de_onda_canal_1(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
     wave_t test_wave = SINUSOIDAL;
     setWaveChannel(&T_channel_1, test_wave);
@@ -314,22 +329,38 @@ void test_cambio_de_forma_de_onda_canal_1(void) {
  * @return -
  */
 void test_cambio_de_forma_de_onda_canal_con_valor_prohibido(void) {
-    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
-    uint8_t n_channel = 2;
+    uint8_t n_channel = 4;
     T_channel_1.n_ch = n_channel;
-    TEST_ASSERT_EQUAL_INT(-1, setWaveChannel(&T_channel_1, SINUSOIDAL));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setWaveChannel(&T_channel_1, SINUSOIDAL));
+    TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
 }
 
 /**
- * @brief Test 5
+ * @brief Test 5.1
+ *        Verificar punteros validos en la llamada al armado del buffer I2S
+ *
+ * @param  -
+ * @return -
+ */
+void test_chequeo_punteros_validos_armado_buffer_I2S(void) {
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setBufferI2S((void *)0, &T_channel_1, T_bufferI2S));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setBufferI2S(&T_channel_0, (void *)0, T_bufferI2S));
+    TEST_ASSERT_EQUAL_INT(RETURN_ERROR, setBufferI2S(&T_channel_0, &T_channel_1, (void *)0));
+}
+
+/**
+ * @brief Test 5.2
  *        Verificar el el armado del buffer I2S con los 2 canales
  *
  * @param  -
  * @return -
  */
 void test_chequeo_armado_buffer_I2S(void) {
-    for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++)
+    TEST_ASSERT_EQUAL_INT(RETURN_OK, channelsInit(&T_channel_0, &T_channel_1));
+    for (uint16_t i = 0; i < TEST_BUFFER_SIZE_MAX; i++)
         T_bufferI2S[i] = 0;
     setBufferI2S(&T_channel_0, &T_channel_1, T_bufferI2S);
     bool flag = false;

@@ -64,21 +64,21 @@ Recibe como parametro el valor de frecuencia en Hz
 **********************************************************************************************************
 */
 static int setSizeBuffer(channel * h_ch, uint16_t frequency) {
-    if (h_ch != NULL) {
-        if (frequency > FREQ_MAX)
-            frequency = FREQ_MAX;
-        if (frequency < FREQ_MIN)
-            frequency = FREQ_MIN;
-        uint16_t size_buffer = FREQ_SAMPLING / frequency;
-        if (size_buffer > BUFFER_SIZE_MAX)
-            size_buffer = BUFFER_SIZE_MAX;
-        if (size_buffer < BUFFER_SIZE_MIN)
-            size_buffer = BUFFER_SIZE_MIN;
-        h_ch->freq = frequency;
-        h_ch->size_buffer = size_buffer;
-        return 0;
-    } else
-        return -1;
+    // if (h_ch != NULL) {
+    // if (frequency > FREQ_MAX)
+    //     frequency = FREQ_MAX;
+    // if (frequency < FREQ_MIN)
+    //     frequency = FREQ_MIN;
+    uint16_t size_buffer = FREQ_SAMPLING / frequency;
+    // if (size_buffer > BUFFER_SIZE_MAX)
+    //     size_buffer = BUFFER_SIZE_MAX;
+    // if (size_buffer < BUFFER_SIZE_MIN)
+    //     size_buffer = BUFFER_SIZE_MIN;
+    h_ch->freq = frequency;
+    h_ch->size_buffer = size_buffer;
+    return 0;
+    //} else
+    //    return -1;
 }
 
 /*
@@ -90,17 +90,17 @@ channel que contiene los atributos de cada canal
 **********************************************************************************************************
 */
 static int setChannel(channel * h_ch) {
-    if (h_ch != NULL) {
-        uint16_t size_buffer = h_ch->size_buffer;
-        for (uint16_t i = 0; i < size_buffer; i++) {
-            if (h_ch->wave_type == SINUSOIDAL)
-                h_ch->wdata[i] = (h_ch->amplitude / 100.0) * SCALE_SIN_WAVE * 1 *
-                                 (i * 2 * M_PI / size_buffer); // 1 = sinf
-            if (h_ch->wave_type == SAWTOOTH)
-                h_ch->wdata[i] = (h_ch->amplitude / 100.0) * i * (SCALE_SAW_WAVE / size_buffer);
-        }
-    } else
-        return -1;
+    // if (h_ch != NULL) {
+    uint16_t size_buffer = h_ch->size_buffer;
+    for (uint16_t i = 0; i < size_buffer; i++) {
+        if (h_ch->wave_type == SINUSOIDAL)
+            h_ch->wdata[i] = (h_ch->amplitude / 100.0) * SCALE_SIN_WAVE * 1 *
+                             (i * 2 * M_PI / size_buffer); // 1 = sinf
+        if (h_ch->wave_type == SAWTOOTH)
+            h_ch->wdata[i] = (h_ch->amplitude / 100.0) * i * (SCALE_SAW_WAVE / size_buffer);
+    }
+    //} else
+    //    return -1;
     return 0;
 }
 
@@ -215,17 +215,21 @@ Recibe como parametro el handle de cada canal y el puntero al buffer I2S
 **********************************************************************************************************
 */
 int setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBuffI2S) {
-    ch_0 = h_ch0;
-    ch_1 = h_ch1;
-    buff_I2S = pBuffI2S;
-    int32_t aux;
-    uint16_t size_buffer = ch_0->size_buffer;
-    for (uint16_t i = 0; i < size_buffer; i++) {
-        buff_I2S[i] = ch_0->wdata[i];
-        aux = buff_I2S[i] << 16;
-        buff_I2S[i] = aux;
-        buff_I2S[i] = buff_I2S[i] + (int32_t)ch_1->wdata[i];
-    }
+    if (h_ch0 != NULL && h_ch1 != NULL && pBuffI2S != NULL) {
+        ch_0 = h_ch0;
+        ch_1 = h_ch1;
+        buff_I2S = pBuffI2S;
+        int32_t aux;
+        uint16_t size_buffer = ch_0->size_buffer;
+        for (uint16_t i = 0; i < size_buffer; i++) {
+            buff_I2S[i] = ch_0->wdata[i];
+            aux = buff_I2S[i] << 16;
+            buff_I2S[i] = aux;
+            buff_I2S[i] = buff_I2S[i] + (int32_t)ch_1->wdata[i];
+        }
+    } else
+        return -1;
+    return 0;
 }
 
 /* === End of documentation ==================================================================== */
