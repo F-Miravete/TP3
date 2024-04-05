@@ -76,7 +76,6 @@
   :gcovr:
     :html_medium_threshold: 75
     :html_high_threshold: 90
-
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
 # As [:tools] is blank, gcc will be used (so long as it's in your system path)
@@ -101,3 +100,4 @@
     - stdout_pretty_tests_report
     - module_generator
     - gcov
+    - junit_tests_report
