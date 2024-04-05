@@ -20,7 +20,24 @@ SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
 /** @file
- ** @brief Capa de abstracción para manejo generador de ondas
+ ** @brief Capa de abstracción para manejo generador de ondas por I2S
+ *         Este driver permite generar 2 señales de onda que se envian por el periferico I2S
+ *         como canal izquierdo y derecho. Las ondas se escogen entre SINUSOIDAL o DIENTE de
+ *         SIERRA. Se ajusta la frecuencia para ambas a la vez y se ajusta su amplitud por
+ *         separado. Datos a considerar:
+ *
+ *         Freq. sampling 96000 Hz
+ *         Freq. Min. 20 Hz - Freq. Max. 24000 Hz
+ *         Buffer size min. -> 96000/24000 = 4
+ *         Buffer size max. -> 96000/20 = 4800
+ *
+ *         Datos I2S
+ *         La funcion que arma el buffer I2S tiene la siguiente caracteristicas:
+ *         Tamaño maximo del buffer 4800
+ *         Buffer de enteros de 32 bits
+ *              (16 bits mas significativos -> canal 0)
+ *              (16 bits menos significativos -> canal 1)
+ *
  **/
 
 /* === Headers files inclusions =============================================================== */

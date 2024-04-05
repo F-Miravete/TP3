@@ -111,9 +111,4 @@ int setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBufferI2S);
 
 /* === End of documentation ========================================================== */
 
-// Freq. sampling 96000 Hz
-// Freq. Min. 20 Hz - Freq. Max. 24000 Hz
-// Buffer size min. -> 96000/24000 = 4
-// Buffer size max. -> 96000/20 = 4800
-
 #endif /* API_INC_API_I2S_H_ */

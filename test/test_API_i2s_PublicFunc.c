@@ -24,11 +24,11 @@ SPDX-License-Identifier: MIT
 /** @file
  *  @brief Modulo de Testeos para funciones publicas del driver API_i2s (ceedling)
  *         Funciones en prueba:
- *         - void channelsInit(void)
- *         - channel * readChannelProperty(uint8_t ch)
- *         - void setFreqChannels(uint16_t freq)
- *         - void setAmpChannel(uint8_t n_channel, uint8_t amplitude)
- *         - void setWaveChannel(uint8_t n_channel, wave_t wave_type)
+ *         - int channelsInit(void)
+ *         - int setFreqChannels(uint16_t freq)
+ *         - int setAmpChannel(uint8_t n_channel, uint8_t amplitude)
+ *         - int setWaveChannel(uint8_t n_channel, wave_t wave_type)
+ *         - int setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBufferI2S);
  */
 
 /* === Headers files inclusions =============================================================== */
