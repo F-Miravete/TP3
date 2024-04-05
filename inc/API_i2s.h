@@ -69,9 +69,9 @@ typedef struct {
  * @brief  Inicializa canales
  *
  * @param  - handle de canal 0 y canal 1
- * @return -
+ * @return - 0 = OK o -1 = ERROR
  */
-void channelsInit(channel * ch0, channel * ch1);
+int channelsInit(channel * ch0, channel * ch1);
 
 /**
  * @brief  Setea un nuevo valor de frecuencia en ambos canales (0 y 1)
@@ -79,35 +79,35 @@ void channelsInit(channel * ch0, channel * ch1);
  * @param  channel * h_ch0 : handle de canal 0
  *         channel * h_ch1 : handle de canal 1
  *          uint16_t freq : valor de frecuencia en Hz
- * @return -
+ * @return - 0 = OK o -1 = ERROR
  */
-void setFreqChannels(channel * h_ch0, channel * h_ch1, uint16_t freq);
+int setFreqChannels(channel * h_ch0, channel * h_ch1, uint16_t freq);
 
 /**
  * @brief  Setea un nuevo valor de amplitud en un canal
  *
  * @param  channel * h_ch : handle de canal
  *         uint8_t amplitude: valor de amplitud en % (0 a 100 %)
- * @return -
+ * @return - 0 = OK o -1 = ERROR
  */
-void setAmpChannel(channel * h_ch, uint8_t amplitude);
+int setAmpChannel(channel * h_ch, uint8_t amplitude);
 
 /**
  * @brief  Setea nueva forma de onda en un canal
  *
  * @param  channel * h_ch : handle de canal
  *         wave_t wave_type : forma de onda
- * @return -
+ * @return - 0 = OK o -1 = ERROR
  */
-void setWaveChannel(channel * h_ch, wave_t wave_type);
+int setWaveChannel(channel * h_ch, wave_t wave_type);
 
 /**
  * @brief  Arma buffer para enviar datos I2S de los 2 canales
  *
  * @param  - handle de canal 0 y canal 1 y
- * @return -
+ * @return - 0 = OK o -1 = ERROR
  */
-void setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBufferI2S);
+int setBufferI2S(channel * h_ch0, channel * h_ch1, int32_t * pBufferI2S);
 
 /* === End of documentation ========================================================== */
 

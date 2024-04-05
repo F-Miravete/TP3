@@ -42,8 +42,8 @@ SPDX-License-Identifier: MIT
 
 /* === Private variable declarations =========================================================== */
 
-channel T_channel_0, T_channel_1;
-int32_t bufferI2S[BUFFER_SIZE_MAX];
+static channel T_channel_0, T_channel_1;
+static int32_t T_bufferI2S[BUFFER_SIZE_MAX];
 
 /* === Private function declarations =========================================================== */
 
@@ -56,13 +56,26 @@ int32_t bufferI2S[BUFFER_SIZE_MAX];
 /* === Public function implementation ========================================================== */
 
 /**
- * @brief Test 1
- *        Verificar la inicializacion correcta de los canales
+ * @brief Test 1.1
+ *        Verificar puntero valido en la inicializacion de canales
  *
  * @param  -
  * @return -
  */
-void test_inicializacion_canales_driver_I2S(void) {
+void test_creacion_correcta_de_canales(void) {
+    TEST_ASSERT_EQUAL_INT(-1, channelsInit((void *)0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(-1, channelsInit(&T_channel_0, (void *)0));
+    TEST_ASSERT_EQUAL_INT(-1, channelsInit((void *)0, (void *)0));
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+}
+/**
+ * @brief Test 1.2
+ *        Verificar la inicializacion de valores de los canales
+ *
+ * @param  -
+ * @return -
+ */
+void test_inicializacion_valores_de_canales(void) {
     // Cargo valores distintos a los iniciales en canal 0
     T_channel_0.amplitude = 1;
     T_channel_0.freq = 1;
@@ -81,7 +94,7 @@ void test_inicializacion_canales_driver_I2S(void) {
     for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++)
         T_channel_1.wdata[i] = 0;
 
-    channelsInit(&T_channel_0, &T_channel_1);
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
 
     TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
     TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
@@ -109,29 +122,107 @@ void test_inicializacion_canales_driver_I2S(void) {
 }
 
 /**
- * @brief Test 2
- *        Verificar el cambio de frecuencia de un canal
+ * @brief Test 2.1
+ *        Verificar puntero valido en cambio de frecuencia de ambos canales
+ *
+ * @param  -
+ * @return -
+ */
+void test_verificar_puntero_cambio_de_frecuencia_canales(void) {
+    uint16_t test_frequency = 2500;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels((void *)0, &T_channel_1, test_frequency));
+    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels(&T_channel_0, (void *)0, test_frequency));
+    TEST_ASSERT_EQUAL_INT(-1, setFreqChannels((void *)0, (void *)0, test_frequency));
+
+    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
+}
+
+/**
+ * @brief Test 2.2
+ *        Verificar el cambio de frecuencia de ambos canales
  *
  * @param  -
  * @return -
  */
 void test_cambio_de_frecuencia_canales(void) {
+    uint16_t test_frequency = 2500;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
     TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
-    uint16_t test_frequency = 2500;
-    setFreqChannels(&T_channel_0, &T_channel_1, test_frequency);
+
+    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency));
+
     TEST_ASSERT_EQUAL_UINT16(test_frequency, T_channel_0.freq);
     TEST_ASSERT_EQUAL_UINT16(test_frequency, T_channel_1.freq);
 }
 
 /**
- * @brief Test 3
+ * @brief Test 2.3
+ *        Verificar el cambio de frecuencia con valores prohibidos
+ *
+ * @param  -
+ * @return -
+ */
+void test_cambio_de_frecuencia_con_valores_prohibidos(void) {
+    uint16_t test_frequency_1 = 25000;
+    uint16_t test_frequency_2 = 12;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(1000, T_channel_1.freq);
+
+    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_1));
+
+    TEST_ASSERT_EQUAL_UINT16(FREQ_MAX, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(FREQ_MAX, T_channel_1.freq);
+
+    TEST_ASSERT_EQUAL_INT(0, setFreqChannels(&T_channel_0, &T_channel_1, test_frequency_2));
+
+    TEST_ASSERT_EQUAL_UINT16(FREQ_MIN, T_channel_0.freq);
+    TEST_ASSERT_EQUAL_UINT16(FREQ_MIN, T_channel_1.freq);
+}
+
+/**
+ * @brief Test 3.1
+ *        Verificar puntero valido al llamar a la funcion cambio de amplitud
+ *
+ * @param  -
+ * @return -
+ */
+void test_puntero_valido_al_llamar_cambio_de_amplitud_canal(void) {
+    uint8_t test_amplitude = 33;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+
+    TEST_ASSERT_EQUAL_INT(-1, setAmpChannel((void *)0, test_amplitude));
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+}
+
+/**
+ * @brief Test 3.2
+ *        Verificar el cambio de amplitud del canal distinto a los permitidos (0 y 1)
+ *
+ * @param  -
+ * @return -
+ */
+void test_cambio_de_amplitud_canal_distinto(void) {
+    uint8_t test_amplitude = 33;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    T_channel_0.n_ch = 2;
+    TEST_ASSERT_EQUAL_INT(-1, setAmpChannel(&T_channel_0, test_amplitude));
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
+}
+
+/**
+ * @brief Test 3.3
  *        Verificar el cambio de amplitud del canal 0
  *
  * @param  -
  * @return -
  */
 void test_cambio_de_amplitud_canal_0(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
     uint8_t test_amplitude = 33;
     setAmpChannel(&T_channel_0, test_amplitude);
@@ -139,13 +230,14 @@ void test_cambio_de_amplitud_canal_0(void) {
 }
 
 /**
- * @brief Test 4
+ * @brief Test 3.4
  *        Verificar el cambio de amplitud del canal 1
  *
  * @param  -
  * @return -
  */
 void test_cambio_de_amplitud_canal_1(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
     uint8_t test_amplitude = 55;
     setAmpChannel(&T_channel_1, test_amplitude);
@@ -153,13 +245,46 @@ void test_cambio_de_amplitud_canal_1(void) {
 }
 
 /**
- * @brief Test 5
+ * @brief Test 3.5
+ *        Verificar el cambio de amplitud del canal con valores prohibidos
+ *
+ * @param  -
+ * @return -
+ */
+void test_cambio_de_amplitud_canal_para_valores_prohibidos(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_0.amplitude);
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+    uint8_t test_amplitude = 101;
+    setAmpChannel(&T_channel_1, test_amplitude);
+    TEST_ASSERT_EQUAL_UINT8(100, T_channel_1.amplitude);
+}
+
+/**
+ * @brief Test 4.1
+ *        Verificar puntero valido al llamar a la funcion cambio de tipo de onda
+ *
+ * @param  -
+ * @return -
+ */
+void test_puntero_valido_al_llamar_cambio_tipo_de_onda(void) {
+    wave_t test_wave = SAWTOOTH;
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+
+    TEST_ASSERT_EQUAL_INT(-1, setWaveChannel((void *)0, test_wave));
+    TEST_ASSERT_EQUAL_UINT8(SINUSOIDAL, T_channel_0.wave_type);
+    TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
+}
+
+/**
+ * @brief Test 4.2
  *        Verificar el cambio de forma de onda del canal 0
  *
  * @param  -
  * @return -
  */
 void test_cambio_de_forma_de_onda_canal_0(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(SINUSOIDAL, T_channel_0.wave_type);
     wave_t test_wave = SAWTOOTH;
     setWaveChannel(&T_channel_0, test_wave);
@@ -167,13 +292,14 @@ void test_cambio_de_forma_de_onda_canal_0(void) {
 }
 
 /**
- * @brief Test 6
+ * @brief Test 4.3
  *        Verificar el cambio de forma de onda del canal 1
  *
  * @param  -
  * @return -
  */
 void test_cambio_de_forma_de_onda_canal_1(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
     TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
     wave_t test_wave = SINUSOIDAL;
     setWaveChannel(&T_channel_1, test_wave);
@@ -181,7 +307,22 @@ void test_cambio_de_forma_de_onda_canal_1(void) {
 }
 
 /**
- * @brief Test 7
+ * @brief Test 4.4
+ *        Verificar el cambio de forma de onda con valores de canal prohibidos
+ *
+ * @param  -
+ * @return -
+ */
+void test_cambio_de_forma_de_onda_canal_con_valor_prohibido(void) {
+    TEST_ASSERT_EQUAL_INT(0, channelsInit(&T_channel_0, &T_channel_1));
+    TEST_ASSERT_EQUAL_UINT8(SAWTOOTH, T_channel_1.wave_type);
+    uint8_t n_channel = 2;
+    T_channel_1.n_ch = n_channel;
+    TEST_ASSERT_EQUAL_INT(-1, setWaveChannel(&T_channel_1, SINUSOIDAL));
+}
+
+/**
+ * @brief Test 5
  *        Verificar el el armado del buffer I2S con los 2 canales
  *
  * @param  -
@@ -189,11 +330,11 @@ void test_cambio_de_forma_de_onda_canal_1(void) {
  */
 void test_chequeo_armado_buffer_I2S(void) {
     for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++)
-        bufferI2S[i] = 0;
-    setBufferI2S(&T_channel_0, &T_channel_1, bufferI2S);
+        T_bufferI2S[i] = 0;
+    setBufferI2S(&T_channel_0, &T_channel_1, T_bufferI2S);
     bool flag = false;
     for (uint16_t i = 0; i < BUFFER_SIZE_MAX; i++) {
-        if (bufferI2S[i] != 0)
+        if (T_bufferI2S[i] != 0)
             flag = true;
     }
     TEST_ASSERT_TRUE(flag);
